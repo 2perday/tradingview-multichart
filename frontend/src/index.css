@@ -136,8 +136,14 @@
     @apply border-border outline-ring/50;
   }
 
+  html,
   body {
     @apply bg-background text-foreground;
     font-family: 'NexonLv1Gothic', sans-serif;
+    overflow-x: hidden;
+    overflow-y: visible;
+    height: 100vh;
+    margin: 0;
+    padding: 0;
   }
 }

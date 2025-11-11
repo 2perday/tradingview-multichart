@@ -1,41 +1,44 @@
 import {
     NavigationMenu,
-    NavigationMenuContent,
     NavigationMenuItem,
-    NavigationMenuLink,
     NavigationMenuList,
-    NavigationMenuTrigger,
-} from "@/components/ui/navigation-menu"
-import { ModeToggle } from "@/components/theme/mode-toggle"
+} from "@/components/ui/navigation-menu";
+import { ModeToggle } from "@/components/theme/mode-toggle";
+import { Plus } from "lucide-react";
 
-export default function NavBar() {
+interface NavBarProps {
+    onAddItem: () => void;
+}
+
+export default function NavBar({ onAddItem }: NavBarProps) {
     return (
-        <div>
-            <nav className="border-b">
-                <div className="flex mx-auto px-4 py-1 w-full justify-between">
-                    <div className="flex justify-start">
-                        {/* <NavigationMenu>
-                            <NavigationMenuList>
-                                <NavigationMenuItem className="">
-                                    <NavigationMenuTrigger className="text-xs">Settings</NavigationMenuTrigger>
-                                    <NavigationMenuContent>
-                                        
-                                    </NavigationMenuContent>
-                                </NavigationMenuItem>
-                            </NavigationMenuList>
-                        </NavigationMenu> */}
-                    </div>
-                    <div className="flex justify-end">
-                        <NavigationMenu className="">
-                            <NavigationMenuList>
-                                <NavigationMenuItem>
-                                    <ModeToggle />
-                                </NavigationMenuItem>
-                            </NavigationMenuList>
-                        </NavigationMenu>
-                    </div>
+        <nav className="border-b">
+            <div className="flex mx-auto px-4 py-1 w-full justify-between">
+                <div className="flex justify-start">
+                    <NavigationMenu className="w-full">
+                        <NavigationMenuList className="gap-2">
+                            <NavigationMenuItem>
+                                <button
+                                    onClick={onAddItem}
+                                    className="p-1 hover:bg-accent rounded"
+                                    title="Add Chart"
+                                >
+                                    <Plus className="size-5" />
+                                </button>
+                            </NavigationMenuItem>
+                        </NavigationMenuList>
+                    </NavigationMenu>
                 </div>
-            </nav>
-        </div>
+                <div className="flex justify-end">
+                    <NavigationMenu className="">
+                        <NavigationMenuList>
+                            <NavigationMenuItem>
+                                <ModeToggle />
+                            </NavigationMenuItem>
+                        </NavigationMenuList>
+                    </NavigationMenu>
+                </div>
+            </div>
+        </nav>
     )
 }
