@@ -1,9 +1,23 @@
 import { useEffect, useRef, memo } from 'react';
+import { useTheme } from '@/components/theme/theme-provider';
 
 function TradingViewWidget() {
   const container = useRef<HTMLDivElement>(null);
+  const { theme } = useTheme();
+
+  // 실제 적용할 테마 결정 (system일 경우 시스템 테마 확인)
+  const resolvedTheme = theme === 'system'
+    ? window.matchMedia('(prefers-color-scheme: dark)').matches
+      ? 'dark'
+      : 'light'
+    : theme;
 
   useEffect(() => {
+    if (!container.current) return;
+
+    // 기존 스크립트 제거
+    container.current.innerHTML = '';
+
     const script = document.createElement("script");
     script.src = "https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js";
     script.type = "text/javascript";
@@ -20,12 +34,12 @@ function TradingViewWidget() {
         "hotlist": false,
         "interval": "D",
         "locale": "en",
-        "save_image": true,
+        "save_image": false,
         "style": "9",
         "symbol": "BINANCE:BTCUSDT.P",
-        "theme": "light",
+        "theme": "${resolvedTheme}",
         "timezone": "Etc/UTC",
-        "backgroundColor": "#ffffff",
+        "backgroundColor": "${resolvedTheme === 'dark' ? '#1a1a1a' : '#ffffff'}",
         "gridColor": "rgba(46, 46, 46, 0)",
         "watchlist": [],
         "withdateranges": false,
@@ -33,19 +47,19 @@ function TradingViewWidget() {
         "studies": [],
         "autosize": true
       }`;
-    if (container.current) {
-      container.current.appendChild(script);
-    }
-  }, []);
+    container.current.appendChild(script);
+  }, [resolvedTheme]);
 
   return (
-    <div className="tradingview-widget-container" ref={container} style={{ height: "100%", width: "100%" }}>
-      <div className="tradingview-widget-container__widget" style={{ height: "calc(100% - 32px)", width: "100%" }}></div>
-      <div className="tradingview-widget-copyright">
+    <div style={{ height: "100%", width: "100%", display: "flex", flexDirection: "column" }}>
+      <div className="tradingview-widget-copyright" style={{ height: "32px", lineHeight: "32px", textAlign: "center", fontSize: "12px" }}>
         <a href="https://www.tradingview.com/symbols/BTCUSDT.P/?exchange=BINANCE" rel="noopener nofollow" target="_blank">
           <span className="blue-text">BTCUSDT.P chart</span>
         </a>
         <span className="trademark"> by TradingView</span>
+      </div>
+      <div className="tradingview-widget-container" ref={container} style={{ height: "calc(100% - 32px)", width: "100%" }}>
+        <div className="tradingview-widget-container__widget" style={{ height: "100%", width: "100%" }}></div>
       </div>
     </div>
   );
