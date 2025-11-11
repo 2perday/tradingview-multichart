@@ -1,68 +1,118 @@
-import { useEffect, useRef, memo } from 'react';
+import { useEffect, useRef, memo, useMemo } from 'react';
 import { useTheme } from '@/components/theme/theme-provider';
 
-function TradingViewWidget() {
+type ChartTheme = 'light' | 'dark';
+
+interface TradingViewWidgetProps {
+  chartId: string; // 각 차트의 고유 ID
+  symbol: string;
+  interval: string;
+}
+
+function TradingViewWidget({ chartId: _chartId, symbol, interval }: TradingViewWidgetProps) {
   const container = useRef<HTMLDivElement>(null);
+  const widgetId = useRef(`tradingview_${Math.random().toString(36).substring(2, 15)}`);
   const { theme } = useTheme();
 
-  // 실제 적용할 테마 결정 (system일 경우 시스템 테마 확인)
-  const resolvedTheme = theme === 'system'
-    ? window.matchMedia('(prefers-color-scheme: dark)').matches
-      ? 'dark'
-      : 'light'
-    : theme;
+  const resolvedTheme: ChartTheme = useMemo(() => {
+    if (theme === 'system') {
+      return window.matchMedia('(prefers-color-scheme: dark)').matches
+        ? 'dark'
+        : 'light';
+    }
+    return theme as ChartTheme;
+  }, [theme]);
+
+  const chartConfig = useMemo(() => ({
+    container_id: widgetId.current,
+    allow_symbol_change: true,
+    calendar: false,
+    details: false,
+    hide_side_toolbar: true,
+    hide_top_toolbar: false,
+    hide_legend: true,
+    hide_volume: false,
+    hotlist: false,
+    interval,
+    locale: 'en',
+    save_image: false,
+    style: '9',
+    symbol,
+    theme: resolvedTheme,
+    timezone: 'Asia/Seoul',
+    watchlist: [],
+    withdateranges: false,
+    compareSymbols: [],
+    studies: [],
+    autosize: true,
+    "gridColor": "rgba(242, 242, 242, 0)",
+  }), [symbol, interval, resolvedTheme]);
 
   useEffect(() => {
-    if (!container.current) return;
+    const currentContainer = container.current;
+    if (!currentContainer) return;
 
-    // 기존 스크립트 제거
-    container.current.innerHTML = '';
+    let mounted = true;
 
-    const script = document.createElement("script");
-    script.src = "https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js";
-    script.type = "text/javascript";
-    script.async = true;
-    script.innerHTML = `
-      {
-        "allow_symbol_change": true,
-        "calendar": false,
-        "details": false,
-        "hide_side_toolbar": true,
-        "hide_top_toolbar": false,
-        "hide_legend": true,
-        "hide_volume": false,
-        "hotlist": false,
-        "interval": "D",
-        "locale": "en",
-        "save_image": false,
-        "style": "9",
-        "symbol": "BINANCE:BTCUSDT.P",
-        "theme": "${resolvedTheme}",
-        "timezone": "Etc/UTC",
-        "backgroundColor": "${resolvedTheme === 'dark' ? '#1a1a1a' : '#ffffff'}",
-        "gridColor": "rgba(46, 46, 46, 0)",
-        "watchlist": [],
-        "withdateranges": false,
-        "compareSymbols": [],
-        "studies": [],
-        "autosize": true
-      }`;
-    container.current.appendChild(script);
-  }, [resolvedTheme]);
+    currentContainer.innerHTML = '';
+
+    const widgetDiv = document.createElement('div');
+    widgetDiv.className = 'tradingview-widget-container__widget';
+    widgetDiv.id = widgetId.current;
+    currentContainer.appendChild(widgetDiv);
+
+    requestAnimationFrame(() => {
+      if (!mounted || !currentContainer) return;
+
+      const script = document.createElement('script');
+      script.type = 'text/javascript';
+      script.src = 'https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js';
+      script.async = true;
+      script.textContent = JSON.stringify(chartConfig);
+
+      currentContainer.appendChild(script);
+    });
+
+    return () => {
+      mounted = false;
+      if (currentContainer) {
+        const iframe = currentContainer.querySelector('iframe');
+        if (iframe) {
+          iframe.remove();
+        }
+        currentContainer.innerHTML = '';
+      }
+    };
+  }, [chartConfig]);
 
   return (
-    <div style={{ height: "100%", width: "100%", display: "flex", flexDirection: "column" }}>
-      <div className="tradingview-widget-copyright" style={{ height: "32px", lineHeight: "32px", textAlign: "center", fontSize: "12px" }}>
-        <a href="https://www.tradingview.com/symbols/BTCUSDT.P/?exchange=BINANCE" rel="noopener nofollow" target="_blank">
-          <span className="blue-text">BTCUSDT.P chart</span>
-        </a>
-        <span className="trademark"> by TradingView</span>
+    <div className="h-full w-full flex flex-col">
+      <div
+        className="tradingview-widget-copyright text-center text-xs"
+        style={{ height: '32px', lineHeight: '32px' }}
+      >
+        {/* <a
+          href="https://www.tradingview.com/"
+          rel="noopener nofollow"
+          target="_blank"
+          className="text-blue-500 hover:underline"
+        >
+          <span>Track all markets on TradingView</span>
+        </a> */}
       </div>
-      <div className="tradingview-widget-container" ref={container} style={{ height: "calc(100% - 32px)", width: "100%" }}>
-        <div className="tradingview-widget-container__widget" style={{ height: "100%", width: "100%" }}></div>
-      </div>
+      <div
+        className="tradingview-widget-container flex-1"
+        ref={container}
+      />
     </div>
   );
 }
 
-export default memo(TradingViewWidget);
+export default memo(TradingViewWidget, (prevProps, nextProps) => {
+  // symbol, interval이 변경되지 않았으면 리렌더링하지 않음
+  return (
+    prevProps.chartId === nextProps.chartId &&
+    prevProps.symbol === nextProps.symbol &&
+    prevProps.interval === nextProps.interval
+  );
+});

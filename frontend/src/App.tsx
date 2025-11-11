@@ -1,46 +1,46 @@
-// import './App.css'
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { ThemeProvider } from "@/components/theme/theme-provider"
 import NavBar from "@/components/common/navbar"
 import IndexPage from "./pages/common/IndexPage"
-
-const STORAGE_KEY = "chart-grid-layout";
+import type { ChartLayout } from "@/types/layout"
+import { STORAGE_KEYS } from "@/constants/grid"
+import {
+  loadLayoutFromStorage,
+  saveLayoutToStorage,
+  createInitialLayout,
+  createChartItem,
+  loadLayoutFromURL,
+  saveLayoutToURL,
+} from "@/utils/layout"
 
 function App() {
-  // localStorage에서 초기 레이아웃 불러오기
-  const [layout, setLayout] = useState(() => {
-    const savedLayout = localStorage.getItem(STORAGE_KEY);
-    if (savedLayout) {
-      try {
-        return JSON.parse(savedLayout);
-      } catch (e) {
-        console.error("Failed to parse saved layout:", e);
-      }
+  // URL 또는 localStorage에서 초기 레이아웃 불러오기
+  const [layout, setLayout] = useState<ChartLayout[]>(() => {
+    // 1순위: URL에서 로드
+    const urlLayout = loadLayoutFromURL();
+    if (urlLayout && urlLayout.length > 0) {
+      return urlLayout;
     }
-    return [{ i: "init", x: 0, y: 0, w: 6, h: 80, minW: 6, minH: 20 }];
+    // 2순위: localStorage에서 로드
+    return loadLayoutFromStorage(STORAGE_KEYS.LAYOUT) ?? createInitialLayout();
   });
 
-  // layout이 변경될 때마다 localStorage에 저장
+  // layout이 변경될 때마다 localStorage와 URL에 저장
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(layout));
+    saveLayoutToStorage(STORAGE_KEYS.LAYOUT, layout);
+    saveLayoutToURL(layout);
   }, [layout]);
 
-  const addItem = () => {
-    const newId = `chart-${Date.now()}`;
-    const newItem = {
-      i: newId,
-      x: (layout.length * 6) % 24,
-      y: Infinity,
-      w: 6,
-      h: 20,
-      minW: 6,
-      minH: 20,
-    };
-    setLayout([...layout, newItem]);
-  };
+  // 차트 추가 함수 - useCallback으로 메모이제이션
+  const addItem = useCallback(() => {
+    setLayout((prevLayout) => {
+      const newItem = createChartItem(prevLayout);
+      return [...prevLayout, newItem];
+    });
+  }, []);
 
   return (
-    <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
+    <ThemeProvider defaultTheme="light" storageKey={STORAGE_KEYS.THEME}>
       <div className="h-screen flex flex-col">
         <NavBar onAddItem={addItem} />
         <IndexPage layout={layout} setLayout={setLayout} />
