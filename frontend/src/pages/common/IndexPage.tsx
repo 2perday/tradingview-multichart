@@ -47,7 +47,6 @@ export default function IndexPage({ layout, setLayout }: IndexPageProps) {
             >
               <X className="size-4" />
             </button>
-            <div className="p-2">Chart {item.i}</div>
           </div>
         ))}
       </ResponsiveGridLayout>
