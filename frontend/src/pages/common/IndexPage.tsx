@@ -2,6 +2,7 @@ import GridLayout, { WidthProvider } from "react-grid-layout";
 import "react-grid-layout/css/styles.css";
 import "react-resizable/css/styles.css";
 import { X } from "lucide-react";
+import TradingViewWidget from "@/components/common/TradingViewWidget";
 
 const ResponsiveGridLayout = WidthProvider(GridLayout);
 
@@ -35,7 +36,7 @@ export default function IndexPage({ layout, setLayout }: IndexPageProps) {
         onLayoutChange={(newLayout) => setLayout(newLayout)}
       >
         {layout.map((item) => (
-          <div key={item.i} className="border bg-card relative">
+          <div key={item.i} className="border bg-card relative overflow-hidden h-full w-full p-0 m-0">
             <button
               onMouseDown={(e) => e.stopPropagation()}
               onClick={(e) => {
@@ -47,6 +48,7 @@ export default function IndexPage({ layout, setLayout }: IndexPageProps) {
             >
               <X className="size-4" />
             </button>
+            <TradingViewWidget />
           </div>
         ))}
       </ResponsiveGridLayout>
