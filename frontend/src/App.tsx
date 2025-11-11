@@ -1,13 +1,29 @@
 // import './App.css'
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { ThemeProvider } from "@/components/theme/theme-provider"
 import NavBar from "@/components/common/navbar"
 import IndexPage from "./pages/common/IndexPage"
 
+const STORAGE_KEY = "chart-grid-layout";
+
 function App() {
-  const [layout, setLayout] = useState([
-    { i: "init", x: 0, y: 0, w: 6, h: 20, minW: 6, minH: 20 },
-  ]);
+  // localStorage에서 초기 레이아웃 불러오기
+  const [layout, setLayout] = useState(() => {
+    const savedLayout = localStorage.getItem(STORAGE_KEY);
+    if (savedLayout) {
+      try {
+        return JSON.parse(savedLayout);
+      } catch (e) {
+        console.error("Failed to parse saved layout:", e);
+      }
+    }
+    return [{ i: "init", x: 0, y: 0, w: 6, h: 80, minW: 6, minH: 20 }];
+  });
+
+  // layout이 변경될 때마다 localStorage에 저장
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(layout));
+  }, [layout]);
 
   const addItem = () => {
     const newId = `chart-${Date.now()}`;
@@ -17,8 +33,8 @@ function App() {
       y: Infinity,
       w: 6,
       h: 20,
-      minW: 4,
-      minH: 10,
+      minW: 6,
+      minH: 20,
     };
     setLayout([...layout, newItem]);
   };
