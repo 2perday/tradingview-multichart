@@ -1,6 +1,7 @@
 # TradingView MultiChart
 
-A customizable multi-chart dashboard for TradingView charts built with React, TypeScript, and Vite. Display multiple trading charts simultaneously with drag-and-drop grid layout, allowing you to monitor multiple markets at once.
+A customizable multi-chart dashboard for TradingView charts built with React, TypeScript, and Vite. Display multiple trading charts simultaneously with drag-and-drop grid layout, allowing you to monitor multiple markets at once.</br></br>
+<img width="2559" height="1282" alt="image" src="https://github.com/user-attachments/assets/b53b3d7c-3952-4891-9f66-639497850e61" />
 
 ## Features
 
