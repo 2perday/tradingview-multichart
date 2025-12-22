@@ -4,7 +4,7 @@ import { useTheme } from '@/components/theme/theme-provider';
 type ChartTheme = 'light' | 'dark';
 
 interface TradingViewWidgetProps {
-  chartId: string; // 각 차트의 고유 ID
+  chartId: string;
   symbol: string;
   interval: string;
 }
@@ -109,7 +109,6 @@ function TradingViewWidget({ chartId: _chartId, symbol, interval }: TradingViewW
 }
 
 export default memo(TradingViewWidget, (prevProps, nextProps) => {
-  // symbol, interval이 변경되지 않았으면 리렌더링하지 않음
   return (
     prevProps.chartId === nextProps.chartId &&
     prevProps.symbol === nextProps.symbol &&

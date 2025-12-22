@@ -6,7 +6,6 @@ export interface ChartLayout {
   h: number;
   minW: number;
   minH: number;
-  // TradingView 차트 설정 (우리가 직접 관리)
   symbol: string;
   interval: string;
 }

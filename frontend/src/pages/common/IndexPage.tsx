@@ -128,12 +128,10 @@ const ChartItem = memo(({ item, onRemove, onUpdateSettings }: ChartItemProps) =>
 });
 
 export default function IndexPage({ layout, setLayout }: IndexPageProps) {
-  // 차트 삭제 함수 - useCallback으로 메모이제이션
   const removeItem = useCallback((itemId: string) => {
     setLayout((prevLayout) => prevLayout.filter((item) => item.i !== itemId));
   }, [setLayout]);
 
-  // 차트 설정 변경 함수 - useCallback으로 메모이제이션
   const updateChartSettings = useCallback((itemId: string, symbol: string, interval: string) => {
     setLayout((prevLayout) =>
       prevLayout.map(item =>
@@ -144,10 +142,8 @@ export default function IndexPage({ layout, setLayout }: IndexPageProps) {
     );
   }, [setLayout]);
 
-  // 레이아웃 변경 핸들러 - useCallback으로 메모이제이션
   const handleLayoutChange = useCallback((newLayout: Layout[]) => {
     setLayout((prevLayout) => {
-      // 기존 차트 설정(symbol, interval)을 보존하면서 위치/크기만 업데이트
       return newLayout.map((layoutItem) => {
         const existingItem = prevLayout.find(item => item.i === layoutItem.i);
         return {
@@ -159,7 +155,6 @@ export default function IndexPage({ layout, setLayout }: IndexPageProps) {
     });
   }, [setLayout]);
 
-  // 레이아웃 설정 - useMemo로 메모이제이션
   const gridConfig = useMemo(() => ({
     containerPadding: GRID_CONFIG.CONTAINER_PADDING,
     margin: GRID_CONFIG.MARGIN,
