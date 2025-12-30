@@ -105,3 +105,5 @@ Your chart layout is encoded in the URL, making it easy to share your dashboard 
 ## Acknowledgments
 
 - [TradingView](https://www.tradingview.com/) for providing the charting widget
+- [shadcn](https://ui.shadcn.com/) for UI Design
+- [react-grid-layout](https://github.com/react-grid-layout/react-grid-layout) for Responsive component layout
